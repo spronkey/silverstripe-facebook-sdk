@@ -16,7 +16,6 @@ class FacebookAPIExtension extends Extension {
 	 */
 	public function onAfterInit() {
 		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.min.js');
-		Requirements::javascript('//connect.facebook.net/en_US/all.js#xfbml=1');
 	}
 
 	/**
@@ -34,13 +33,25 @@ class FacebookAPIExtension extends Extension {
 
 		// Frontend initialisation
 		$appID = $facebook->getAppId();
-		Requirements::customScript("FB.init({
-			appId  : '$appID',
-			status : true, // check login status
-			cookie : true, // enable cookies to allow the server to access the session
-			xfbml  : true  // parse XFBML
-		});
-		FB.Canvas.setAutoGrow(); //Resizes the iframe to fit content");
+		Requirements::customScript("window.fbAsyncInit = function() {
+			FB.init({
+				appId  : '$appID',
+				version: 'v2.0',
+				status : true, // check login status
+				cookie : true, // enable cookies to allow the server to access the session
+				xfbml  : true  // parse XFBML
+			});
+			FB.Canvas.setAutoGrow(); //Resizes the iframe to fit content
+		};
+
+		(function(d, s, id) {
+			var js, fjs = d.getElementsByTagName(s)[0];
+			if (d.getElementById(id)) {return;}
+			js = d.createElement(s); js.id = id;
+			js.src = \"//connect.facebook.net/en_US/sdk.js\";
+			fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
+		");
 
 		$this->owner->extend('onAfterInitFacebook', $facebook);
 	}
